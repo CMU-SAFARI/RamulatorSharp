@@ -1,0 +1,4 @@
+./traces /home/kevincha/traces/hybrid C:\Users\kevincha\Documents\Mem\src\traces
+trace.forkset-rc.gz
+trace.bootup.1B-rc.gz
+trace.shell-rc.gz
