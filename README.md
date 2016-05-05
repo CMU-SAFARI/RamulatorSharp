@@ -24,19 +24,26 @@ open-source implementation of Microsoft's .NET framework) for compilation and
 runtime on the installed system. It has been tested on Windows, Linux, and OS
 X. Users can also choose to use Visual Studio as the development tool.
 
-**Compilation**
-`$ cd Ramulator#; make`
+**Installation and Compilation**
+```sh
+$ git clone [RamulatorSharp-repo-url]
+$ cd RamulatorSharp; make
+```
 
 If the compilation completes without errors, the binary is located in `bin/sim.exe`.
 
 **Running Ramulator#?**
 
-To run some sample simulations, simply run
-`$ ./test_runs.sh`
+To run some sample simulations:
+```sh
+$ ./test_runs.sh
+```
 
 The script provides examples on running various system configurations, such as
 a single-core system to a quad-core system with different memory configurations.
 It generates results in the json format under the folder `results`.
+
+**How does Ramulator# simulate an application?**
 
 At a high level, Ramulator# simulates a core running a single application by
 consuming a trace. A trace consists of a list of memory requests and number of
@@ -66,11 +73,26 @@ the locations where the trace files locate. So by specifying `-workload
 workloads/4core_mix 1`, the simulator simulates the first workload (line 2) in
 the trace file.
 
+## GUI support for visualizing DRAM command sequence
+
+Ramulator# provides a nice GUI tool to visual DRAM commands sent from the
+memory controller to the various DRAM structures (i.e., channels, ranks, and
+    banks). The authors have found it extremely useful for debugging or
+understanding the performance of implementations that can affect the ordering
+of the commands. The following two image are the screenshot from using the GUI
+tool to show the commands that have been issued to the 8 different DRAM banks
+within a specific channel and rank.
+
+# ![gui](media/debug_gui_cmd_timeline_windows.png)
+# ![gui](media/debug_gui_cmd_timeline_linux.png)
+
+To enable the GUI tool, add the flag ``-gfx.gui_enabled true`` to the running command or to the config file. The GUI tool works on both Windows and Linux, but is not rendering properly on OS X at the momemnt.
+
 ## Contributors
 
-    [Kevin Chang](https://users.ece.cmu.edu/~kevincha/)
-    [Yoongu Kim](https://users.ece.cmu.edu/~yoonguk/)
+[Kevin Chang](https://users.ece.cmu.edu/~kevincha/)
+[Yoongu Kim](https://users.ece.cmu.edu/~yoonguk/)
 
 ## License
 
-    Released under a BSD (3-clause) license
+Released under a BSD (3-clause) license
