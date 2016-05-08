@@ -11,11 +11,23 @@ readers to the original
 [article](https://users.ece.cmu.edu/~omutlu/pub/ramulator_dram_simulator-ieee-cal15.pdf)
 that provides further details on the design.
 
+**DDR Standards**
+
+Ramulator# can be configured to run with an array of DDR3 and
+LPDDR3 standards (`src/Mem/DDR3DRAM.cs`). Additional standards can be easily
+added to Ramulator#.
+
+
+**Academic Proposals**
+
 One main feature that is available in this version of the Ramulator is its
 support for a recently proposed DRAM substrate, called [Low-Cost Inter-Linked
 Subarrays
 (LISA)](https://users.ece.cmu.edu/~kevincha/papers/kchang_lisa_hpca2016.pdf) by
-Chang et al. in HPCA 2016.
+Chang et al. in HPCA 2016. An additional academic implementation is [A case for
+exploiting subarray-level parallelism (SALP) in
+DRAM](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6237032) by
+Kim et al.
 
 ## Getting Started
 
