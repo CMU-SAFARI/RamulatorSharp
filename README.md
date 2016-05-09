@@ -3,7 +3,7 @@
 Ramulator# (pronounced as ramulator sharp) is a fast and cycle-accurate DRAM
 simulator that supports a wide array of commercial, as well as academic, DRAM
 standards. It is a predecessor of
-[Ramultor](https://github.com/CMU-SAFARI/ramulator). Therefore, the high-level
+[Ramaultor](https://github.com/CMU-SAFARI/ramulator). Therefore, the high-level
 design Ramulator# is very similar to that of Ramulator. The main difference is
 that it is implemented in the C# language whereas Ramulator is written in C++.
 To understand how Ramulator# models a DRAM-based memory system, we refer the
