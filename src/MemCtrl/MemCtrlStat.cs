@@ -19,6 +19,10 @@ namespace Ramulator.MemCtrl
 
         public AccumStat stall_on_refresh;
 
+        // ChargeCache
+        public AccumStat cc_hit, cc_miss;
+
+
         public MemCtrlStat(uint cid)
         {
             this.cid = cid;

@@ -17,7 +17,6 @@ namespace Ramulator.Mem
 
         // Fast SA
         public uint[,] FastConstrs;
-
         public uint[,] FastSiblingConstrs;
 
         public long[] Next;
@@ -148,7 +147,7 @@ namespace Ramulator.Mem
             return Children[childId].Check(cycles, cmd, addrArray);
         }
 
-        public void Update(long cycles, int cmd, uint[] addrArray, bool villaCache = false)
+        public void Update(long cycles, int cmd, uint[] addrArray, bool villaCache = false, bool chargeCacheHit = false)
         {
             // update timing for future cmds; i am a sibling of the target node
             if (id != addrArray[(int)level])
@@ -160,7 +159,7 @@ namespace Ramulator.Mem
             // update timing for future cmds; i am the target node
             Prev[cmd] = cycles;
             for (int i = 0; i < (int)CmdType.MAX; i++)
-                update_dram_cmd_constraint(cycles, cmd, villaCache, i);
+                update_dram_cmd_constraint(cycles, cmd, villaCache, chargeCacheHit, i);
 
             // update tFAW
             if (level == Level.RANK && cmd == (int)CmdType.ACT)
@@ -184,13 +183,13 @@ namespace Ramulator.Mem
 
             // update all children
             foreach (TimingNode t in Children)
-                t.Update(cycles, cmd, addrArray, villaCache);
+                t.Update(cycles, cmd, addrArray, villaCache, chargeCacheHit);
         }
 
-        private void update_dram_cmd_constraint(long cycles, int cmd, bool villaCache, int i)
+        private void update_dram_cmd_constraint(long cycles, int cmd, bool villaCache, bool chargeCacheHit, int i)
         {
             long horizon = cycles;
-            long constraint = villaCache ? FastConstrs[cmd, i] : Constrs[cmd, i];
+            long constraint = villaCache | chargeCacheHit ? FastConstrs[cmd, i] : Constrs[cmd, i];
 
             // Update the timing
             horizon += constraint;
@@ -254,16 +253,19 @@ namespace Ramulator.Mem
             Channel = new TimingNode(tc, 0, cid, fanOutArray, ConstrsArray, SiblingConstrsArray);
         }
 
-        public DRAMTiming(DDR3DRAM.Timing tc, uint cid, uint[] fanOutArray, DRAMTiming villaFastSaTiming)
+        public DRAMTiming(DDR3DRAM.Timing tc, uint cid, uint[] fanOutArray, DRAMTiming fastTiming)
         {
             this.tc = tc;
 
             init_service_array();
             init_constrs_array();
             init_sibling_constrs_array();
+
             // Heterogeneous DRAM: VarIabLe LAtency DRAM (VILLA). Add a fast subarray in every bank.
+            // ChargeCache. Provide fast timing parameters to be used on ChargeCache hit.
             Channel = new TimingNode(tc, 0, cid, fanOutArray, ConstrsArray, SiblingConstrsArray,
-                villaFastSaTiming.ConstrsArray, villaFastSaTiming.SiblingConstrsArray);
+                    fastTiming.ConstrsArray, fastTiming.SiblingConstrsArray);
+            
         }
 
         private void init_service_array()
@@ -562,10 +564,11 @@ namespace Ramulator.Mem
             return Channel.Check(cycles, (int)c, addrArray);
         }
 
-        public void Update(long cycles, CmdType c, MemAddr a, bool villaCache = false)
+        public void Update(long cycles, CmdType c, MemAddr a, bool villaCache = false,
+                            bool chargeCacheHit = false)
         {
             uint[] addrArray = { a.cid, a.rid, a.bid, a.said };
-            Channel.Update(cycles, (int)c, addrArray, villaCache);
+            Channel.Update(cycles, (int)c, addrArray, villaCache, chargeCacheHit);
         }
 
         public void update_rank_trfc(uint rfc)

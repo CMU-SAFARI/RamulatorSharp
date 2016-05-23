@@ -10,6 +10,9 @@ mkdir $outdir
 # A baseline memory system similar to today's processor
 mono bin/sim.exe -output $outdir/gcc.json -config configs/1core_base.cfg -workload workloads/1core 2
 echo ""
+# ChargeCache
+mono bin/sim.exe -output $outdir/gcc+ChargeCache.json -config configs/1core_ChargeCache.cfg -workload workloads/1core 2
+echo ""
 
 # ** Application: Forkset (with copy commands) **
 # A baseline memory system using memcpy

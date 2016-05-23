@@ -491,5 +491,10 @@ namespace Ramulator.Mem
             var bank = _channel.Get(NodeMachine.Level.BANK, addrArray);
             return bank.OpenChildrenId.Count;
         }
+
+        public NodeMachine GetChild(NodeMachine.Level level, ulong[] addrArray)
+        {
+            return _channel.Get(level, addrArray);
+        }
     }
 }

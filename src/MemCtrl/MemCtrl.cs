@@ -1,4 +1,5 @@
 ﻿using Ramulator.Mem;
+using Ramulator.Proc;
 using Ramulator.MemCtrl.Refresh;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,11 @@ namespace Ramulator.MemCtrl
 
         public DDR3DRAM.Timing villa_tc;
         public DRAMTiming VillaDtiming;
+
+	    // ChargeCache timing
+	    public DDR3DRAM ChargeCacheDDR3;
+	    public DDR3DRAM.Timing ChargeCacheTC;
+	    public DRAMTiming ChargeCacheDtiming;
 
         // scheduler
         public MemSched.MemSched Rsched, Wsched;
@@ -101,6 +107,11 @@ namespace Ramulator.MemCtrl
         // Copy
         private readonly bool _bFindCopyRequests;
 
+        // ChargeCache
+        public Cache[] Hcrac;
+        ulong HcracInvInterval;
+        uint HcracInvIndex;
+
         // ctor
         public MemCtrl(uint rmax, DDR3DRAM ddr3)
         {
@@ -122,13 +133,10 @@ namespace Ramulator.MemCtrl
 
             // dram timing & state-machine
             uint[] fanoutArray = { 1, rmax, Bmax, Smax };
-            if (!Config.mctrl.villa_cache)
+
+            if (Config.mctrl.villa_cache)
             {
-                Dtiming = new DRAMTiming(tc, cid, fanoutArray);
-            }
-            else
-            {
-                // VILLA - caching
+		        // VILLA - caching
                 villa_ddr3 = new DDR3DRAM(Config.mem.ddr3_type,
                         Config.mem.clock_factor, Config.mem.tRTRS, Config.mem.tWR,
                         Config.mem.tWTR, Config.mem.tBL, Config.mem.bank_max,
@@ -136,6 +144,7 @@ namespace Ramulator.MemCtrl
                         Config.mem.tRA, Config.mem.tWA, Config.mem.tREFI,
                         Config.mem.tRFC, Config.mem.tRP, Config.mem.tRCD);
                 villa_tc = villa_ddr3.timing;
+
                 villa_tc.tRCD = (uint)(villa_tc.tRCD * Config.mctrl.villa_tRCD_frac);
                 villa_tc.tRAS = (uint)(villa_tc.tRAS * Config.mctrl.villa_tRAS_frac);
                 villa_tc.tRP = (uint)(villa_tc.tRP * Config.mctrl.villa_tRP_frac);
@@ -172,6 +181,48 @@ namespace Ramulator.MemCtrl
                 if (Config.mctrl.villa_cache_method == VILLA_HOT.EPOCH)
                     MemCacheMon = new MemCacheMonitor(this);
             }
+            else if (Config.mctrl.charge_cache)
+            {
+                ChargeCacheDDR3 = new DDR3DRAM(Config.mem.ddr3_type,
+                        Config.mem.clock_factor, Config.mem.tRTRS, Config.mem.tWR,
+                        Config.mem.tWTR, Config.mem.tBL, Config.mem.bank_max,
+                        Config.mem.subarray_max, Config.mem.col_max,
+                        Config.mem.tRA, Config.mem.tWA, Config.mem.tREFI,
+                        Config.mem.tRFC, Config.mem.tRP, Config.mem.tRCD);
+                ChargeCacheTC = ChargeCacheDDR3.timing;
+
+                ChargeCacheTC.tRCD = (uint)(ChargeCacheTC.tRCD * Config.mctrl.cc_tRCD_frac);
+                ChargeCacheTC.tRAS = (uint)(ChargeCacheTC.tRAS * Config.mctrl.cc_tRAS_frac);
+                ChargeCacheTC.tRC = ChargeCacheTC.tRAS + ChargeCacheTC.tRP;
+                
+                
+                ChargeCacheDtiming = new DRAMTiming(ChargeCacheTC, cid, fanoutArray);
+                Dtiming = new DRAMTiming(tc, cid, fanoutArray, ChargeCacheDtiming);
+
+                // calculate the invalidation interval using the caching duration
+                HcracInvInterval = (ulong) (Config.mctrl.cc_caching_duration*1000000*
+                                    Config.mem.clock_factor/tc.tCK)/Config.mctrl.cc_capacity;
+                HcracInvIndex = 0; // points to the next HCRAC entry to be invalidated
+
+                //initialize HCRAC
+                uint hcracEntrySize = (uint)Math.Round(Math.Log(Config.mem.bank_max, 2.0)) + 
+                                       (uint)Math.Round(Math.Log(Config.mem.rank_max, 2.0)) + 
+                                       (uint)Math.Round(Math.Log(ddr3.ROW_MAX, 2.0));
+
+                uint hcracSize = Config.mctrl.cc_capacity*hcracEntrySize;
+                Hcrac = new Cache[Config.N];
+
+                for(int i = 0; i < Config.N; i++){
+                    Hcrac[i] = new Cache(hcracSize, Config.mctrl.cc_associativity,
+                                    hcracEntrySize, Config.mctrl.cc_access_latency, 0);
+                }
+
+            }
+	        else
+	        {
+                Dtiming = new DRAMTiming(tc, cid, fanoutArray);
+	        }
+
             Dstate = new DRAMState(cid, fanoutArray, this);
 
             // queue size
@@ -341,7 +392,32 @@ namespace Ramulator.MemCtrl
             // Recycle refresh request
             if (cmd.is_refresh())
                 RequestPool.Enpool(bestReq);
+
+            // ChargeCache periodic invalidation
+            if (Config.mctrl.charge_cache)
+            {
+                if((ulong) Cycles % HcracInvInterval == 0)
+                    hcracInv();
+            }
         }
+
+        // --- ChargeCache in HPCA'16 ---
+        private void hcracInv()
+        {
+            uint setIndex = HcracInvIndex / Hcrac[0].Assoc;
+            uint assocIndex = HcracInvIndex % Hcrac[0].Assoc;
+
+            for(int i = 0; i < Config.N; i++){
+                Hcrac[i].cache[setIndex, assocIndex] = Proc.Proc.NULL_ADDRESS;
+                Hcrac[i].LruChainList[setIndex].Remove((int)assocIndex);
+            }
+
+            HcracInvIndex++;
+
+            if (HcracInvIndex == Config.mctrl.cc_capacity)
+                HcracInvIndex = 0;
+        }
+        // --- END ChargeCache in HPCA'16 ---
 
         // Retire those memory requests that have completed
         private void ServeCompletedRequest()
@@ -826,8 +902,59 @@ namespace Ramulator.MemCtrl
                 }
             }
 
+            // ChargeCache
+            bool ccHit = false;
+            if(Config.mctrl.charge_cache)
+            {
+                ulong hcracAddr = 0;
+
+                if(cmd.Req.Type != ReqType.REFRESH)
+                {
+                    generateHCRACAddr(cmd.Req, ref hcracAddr);
+                    if(Hcrac[req.Pid].is_cache_hit(hcracAddr, ReqType.READ)){
+                        if(cmd.Type == CmdType.ACT)
+                            Stat.mctrls[cid].cc_hit.collect();
+                        ccHit = true;
+                    }
+                    else
+                    {
+                        if(cmd.Type == CmdType.ACT)
+                            Stat.mctrls[cid].cc_miss.collect();
+
+                        if(cmd.Type == CmdType.PRE_BANK || cmd.Type == CmdType.PRE_SA ||
+                            cmd.Type == CmdType.RD_AP || cmd.Type == CmdType.WR_AP)
+                        { // insert the address to hcrac on precharge
+                            if(generateHCRACAddr(cmd.Req, ref hcracAddr, true))
+                                if(!Hcrac[req.Pid].is_cache_hit(hcracAddr, ReqType.READ))
+                                    Hcrac[req.Pid].cache_add(hcracAddr, ReqType.READ, 0);
+                        }
+                    
+                        // inserts the addresses of rows that are opened in all banks in the target rank
+                        if(cmd.Type == CmdType.PRE_RANK)
+                        {
+                            Req tmpReq = new Req();
+                            tmpReq.Addr = new MemAddr();
+
+                            for(uint i = 0; i < Config.mem.bank_max; i++)
+                            {
+                                tmpReq.Addr.bid = i;
+
+                                if(generateHCRACAddr(tmpReq, ref hcracAddr, true))
+                                {
+                                    if(!Hcrac[req.Pid].is_cache_hit(hcracAddr, ReqType.READ))
+                                    {
+                                        Hcrac[req.Pid].cache_add(hcracAddr, ReqType.READ, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // END - ChargeCache
+
             // update dram timing and state
-            Dtiming.Update(Cycles, cmd.Type, cmd.Addr, villaCacheHit);
+            Dtiming.Update(Cycles, cmd.Type, cmd.Addr, villaCacheHit, ccHit);
             Dstate.Update(cmd.Type, cmd.Addr, Cycles);
 
             // VILLA cache
@@ -844,6 +971,37 @@ namespace Ramulator.MemCtrl
             if (!req.CpyGenReq)
                 collect_cmd_stats(cmd, req);
         }
+
+        // ChargeCache
+        private bool generateHCRACAddr(Req req, ref ulong hcracAddr, bool isPRE = false)
+        {
+            int rankBits = (int) Math.Round(Math.Log(Config.mem.rank_max));
+            int bankBits = (int) Math.Round(Math.Log(Config.mem.bank_max));
+
+            if(isPRE)
+            {
+                ulong[] addrArray = { req.Addr.cid, req.Addr.rid, req.Addr.bid, 
+                                        req.Addr.said, req.Addr.rowid};
+                NodeMachine bank = Dstate.GetChild(NodeMachine.Level.BANK, addrArray);
+
+                if(bank.OpenChildrenId.Count == 0)
+                { //the bank is closed
+                    return false;
+                }
+
+                hcracAddr = bank.Children[bank.OpenChildrenId[0]].OpenChildrenId[0];
+            }
+            else
+            {
+                hcracAddr = req.Addr.rowid;
+            }
+
+            hcracAddr = (hcracAddr << bankBits) + req.Addr.bid;
+            hcracAddr = (hcracAddr << rankBits) + req.Addr.rid;
+
+            return true;          
+        }
+        // END - ChargeCache
 
         private Req CacheVilla(Cmd cmd)
         {

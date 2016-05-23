@@ -113,6 +113,17 @@ namespace Ramulator.MemCtrl
         public uint num_villa_sa = 4;
         public bool villa_ideal = false;
 
+        /*
+         * ChargeCache (Hassan et al., HPCA 2016)
+         */
+        public bool charge_cache = false;
+        public uint cc_capacity = 512; // as number of rows per channel and per core
+        public uint cc_access_latency = 1; // Highly-Charged Row Address Cache (HCRAC) access latency
+        public uint cc_associativity = 16; // HCRAC associativity
+        public double cc_caching_duration = 1.0; // HCRAC caching duration
+        public double cc_tRCD_frac = 0.65; // relative to the baseline tRCD
+        public double cc_tRAS_frac = 0.75; // relative to the baseline tRAS
+
         /* RBLA stats */
         public int rbla_cache_threshold = 150;
         public int rbla_epoch_clean_threshold = 1000000;
