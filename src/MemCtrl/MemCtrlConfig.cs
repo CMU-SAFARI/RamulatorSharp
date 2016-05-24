@@ -120,7 +120,7 @@ namespace Ramulator.MemCtrl
         public uint cc_capacity = 512; // as number of rows per channel and per core
         public uint cc_access_latency = 1; // Highly-Charged Row Address Cache (HCRAC) access latency
         public uint cc_associativity = 16; // HCRAC associativity
-        public double cc_caching_duration = 1.0; // HCRAC caching duration
+        public double cc_caching_duration = 1.0; // HCRAC caching duration (as milliseconds)
         public double cc_tRCD_frac = 0.65; // relative to the baseline tRCD
         public double cc_tRAS_frac = 0.75; // relative to the baseline tRAS
 
