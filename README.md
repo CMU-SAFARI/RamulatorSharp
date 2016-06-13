@@ -1,9 +1,10 @@
 ## Ramulator#: A fast and lightweight DRAM simulator
 
-Ramulator# (pronounced as ramulator sharp) is a fast and cycle-accurate DRAM
-simulator that supports a wide array of commercial, as well as academic, DRAM
-standards. It is a predecessor of
-[Ramaultor](https://github.com/CMU-SAFARI/ramulator). Therefore, the high-level
+Ramulator# (pronounced as ramulator sharp) is a fast and flexible memory
+subsystem simulator implemented in C# and it can easily run on Linux, OS X, and
+Windows. The simulator contains the implementation of a wide array of
+commercial, as well as academic, DRAM standards. It is a predecessor of
+[Ramulator](https://github.com/CMU-SAFARI/ramulator). Therefore, the high-level
 design Ramulator# is very similar to that of Ramulator. The main difference is
 that it is implemented in the C# language whereas Ramulator is written in C++.
 To understand how Ramulator# models a DRAM-based memory system, we refer the
@@ -20,14 +21,33 @@ added to Ramulator#.
 
 **Academic Proposals**
 
-One main feature that is available in this version of the Ramulator is its
-support for a recently proposed DRAM substrate, called [Low-Cost Inter-Linked
-Subarrays
-(LISA)](https://users.ece.cmu.edu/~kevincha/papers/kchang_lisa_hpca2016.pdf) by
-Chang et al. in HPCA 2016. An additional academic implementation is [A case for
-exploiting subarray-level parallelism (SALP) in
-DRAM](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6237032) by
-Kim et al.
+Ramulator# supports many recent academic proposals:
+- [Low-Cost Inter-Linked Subarrays
+  (LISA)](https://users.ece.cmu.edu/~kevincha/papers/kchang_lisa_hpca2016.pdf)
+by Chang et al. in HPCA 2016.
+- [ChargeCache: Reducing DRAM Latency by Exploiting Row Access
+  Locality](https://users.ece.cmu.edu/~omutlu/pub/chargecache_low-latency-dram_hpca16.pdf)
+by Hassan et al. in HPCA 2016.
+- [The Blacklisting Memory Scheduler: Achieving High Performance and Fairness at
+  Low
+Cost](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.660.1196&rep=rep1&type=pdf)
+by Subramanian et al. in ICCD 2014.
+- [RowClone: Fast and Energy-Efficient in-DRAM Bulk Data Copy and
+  Initialization](http://www.istc-cc.cmu.edu/publications/papers/2013/rowclone_micro13.pdf)
+by Seshadri et al. in MICRO 2013.
+- [A Case for Exploiting Subarray-Level Parallelism (SALP) in
+  DRAM](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6237032) by
+Kim et al. in ISCA 2012.
+- [Prefetch-Aware Shared Resource Management for Multi-Core
+  Systems](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.377.8635&rep=rep1&type=pdf) by
+  Ebrahimi et al. in ISCA 2011.
+- [ATLAS: A Scalable and High-Performance Scheduling Algorithm for Multiple
+  Memory
+Controllers](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1864&context=compsci)
+by Kim et al. in HPCA 2010.
+- [Thread Cluster Memory Scheduling: Exploiting Differences in Memory Access
+  Behavior](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1399&context=ece)
+by Kim et al. in MICRO 2010.
 
 ## Getting Started
 
@@ -54,6 +74,13 @@ $ ./test_runs.sh
 The script provides examples on running various system configurations, such as
 a single-core system to a quad-core system with different memory configurations.
 It generates results in the json format under the folder `results`.
+
+**Configuring Ramulator#**
+
+Ramulator# can be easily run with various configurations. Academic proposals and
+other DRAM standards can be selected using a simple configuration file (.cfg).
+We provide sample configuration files inside the ``configs/`` folder which
+demostrate the usage of LISA and ChargeCache mechanisms.
 
 **How does Ramulator# simulate an application?**
 
