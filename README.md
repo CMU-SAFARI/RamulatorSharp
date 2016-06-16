@@ -23,31 +23,28 @@ added to Ramulator#.
 
 Ramulator# supports many recent academic proposals:
 - [Low-Cost Inter-Linked Subarrays
-  (LISA)](https://users.ece.cmu.edu/~kevincha/papers/kchang_lisa_hpca2016.pdf)
+  (LISA)](https://users.ece.cmu.edu/~omutlu/pub/lisa-dram_hpca16.pdf)
 by Chang et al. in HPCA 2016.
 - [ChargeCache: Reducing DRAM Latency by Exploiting Row Access
   Locality](https://users.ece.cmu.edu/~omutlu/pub/chargecache_low-latency-dram_hpca16.pdf)
 by Hassan et al. in HPCA 2016.
 - [The Blacklisting Memory Scheduler: Achieving High Performance and Fairness at
   Low
-Cost](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.660.1196&rep=rep1&type=pdf)
+Cost](https://users.ece.cmu.edu/~omutlu/pub/bliss-memory-scheduler_iccd14.pdf)
 by Subramanian et al. in ICCD 2014.
 - [RowClone: Fast and Energy-Efficient in-DRAM Bulk Data Copy and
-  Initialization](http://www.istc-cc.cmu.edu/publications/papers/2013/rowclone_micro13.pdf)
+  Initialization](https://users.ece.cmu.edu/~omutlu/pub/rowclone_micro13.pdf)
 by Seshadri et al. in MICRO 2013.
 - [A Case for Exploiting Subarray-Level Parallelism (SALP) in
-  DRAM](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6237032) by
+  DRAM](https://users.ece.cmu.edu/~omutlu/pub/salp-dram_isca12.pdf) by
 Kim et al. in ISCA 2012.
-- [Prefetch-Aware Shared Resource Management for Multi-Core
-  Systems](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.377.8635&rep=rep1&type=pdf) by
-  Ebrahimi et al. in ISCA 2011.
-- [ATLAS: A Scalable and High-Performance Scheduling Algorithm for Multiple
-  Memory
-Controllers](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1864&context=compsci)
-by Kim et al. in HPCA 2010.
 - [Thread Cluster Memory Scheduling: Exploiting Differences in Memory Access
-  Behavior](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1399&context=ece)
+  Behavior](https://users.ece.cmu.edu/~omutlu/pub/tcm_micro10.pdf)
 by Kim et al. in MICRO 2010.
+- [ATLAS: A Scalable and High-Performance Scheduling Algorithm for Multiple
+  Memory Controllers](https://users.ece.cmu.edu/~omutlu/pub/atlas_hpca10.pdf)
+by Kim et al. in HPCA 2010.
+
 
 ## Getting Started
 
@@ -129,8 +126,8 @@ To enable the GUI tool, add the flag ``-gfx.gui_enabled true`` to the running co
 
 ## Contributors
 
-[Kevin Chang](https://users.ece.cmu.edu/~kevincha/)
-[Yoongu Kim](https://users.ece.cmu.edu/~yoonguk/)
+- [Kevin Chang](https://users.ece.cmu.edu/~kevincha/)
+- [Yoongu Kim](https://users.ece.cmu.edu/~yoonguk/)
 
 ## License
 
