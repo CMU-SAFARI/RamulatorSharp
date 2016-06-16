@@ -22,8 +22,8 @@ added to Ramulator#.
 **Academic Proposals**
 
 Ramulator# supports many recent academic proposals:
-- [Low-Cost Inter-Linked Subarrays
-  (LISA)](https://users.ece.cmu.edu/~omutlu/pub/lisa-dram_hpca16.pdf)
+- [Low-Cost Inter-Linked Subarrays (LISA): Enabling Fast Inter-Subarray Data Movement in 
+  DRAM](https://users.ece.cmu.edu/~omutlu/pub/lisa-dram_hpca16.pdf)
 by Chang et al. in HPCA 2016.
 - [ChargeCache: Reducing DRAM Latency by Exploiting Row Access
   Locality](https://users.ece.cmu.edu/~omutlu/pub/chargecache_low-latency-dram_hpca16.pdf)
