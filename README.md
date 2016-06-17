@@ -44,6 +44,10 @@ by Kim et al. in MICRO 2010.
 - [ATLAS: A Scalable and High-Performance Scheduling Algorithm for Multiple
   Memory Controllers](https://users.ece.cmu.edu/~omutlu/pub/atlas_hpca10.pdf)
 by Kim et al. in HPCA 2010.
+- [Parallelism-Aware Batch Scheduling: Enhancing both Performance and Fairness
+  of Shared DRAM Systems]
+(https://users.ece.cmu.edu/~omutlu/pub/parbs_isca08.pdf) by Mutlu et al. in ISCA
+2008.
 
 
 ## Getting Started
